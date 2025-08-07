@@ -7,5 +7,5 @@ type User struct {
 	Name     string `json:"name" gorm:"not null"`
 	Email    string `json:"email" gorm:"unique;not null"`
 	Password string `json:"-" gorm:"not null"` // "-" means don't include in JSON response
-	Role     string `json:"role" gorm:"default:user"`
+	Role     string `json:"role" gorm:"not null;type:varchar(20);check:role IN ('visitor', 'trip_owner')"`
 }

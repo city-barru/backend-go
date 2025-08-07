@@ -14,6 +14,7 @@ func SetupAuthRoutes(router *gin.RouterGroup) {
 		// Public routes
 		authGroup.POST("/register", auth.Register)
 		authGroup.POST("/login", auth.Login)
+		authGroup.GET("/roles", auth.GetRoles)
 
 		// Protected routes
 		protected := authGroup.Group("/")
