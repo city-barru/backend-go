@@ -19,9 +19,15 @@ func SetupTripRoutes(router *gin.RouterGroup) {
 		protected := tripGroup.Group("/")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			protected.POST("/", trip.Create)
-			protected.PUT("/:id", trip.Update)
-			protected.DELETE("/:id", trip.Delete)
+			// Trip owner only routes - require trip_owner role
+			tripOwnerRoutes := protected.Group("/")
+			tripOwnerRoutes.Use(middleware.RequireRole("trip_owner"))
+			{
+				tripOwnerRoutes.POST("/", trip.Create)
+				tripOwnerRoutes.PUT("/:id", trip.Update)
+				tripOwnerRoutes.DELETE("/:id", trip.Delete)
+				tripOwnerRoutes.GET("/my-trips", trip.GetMyTrips)
+			}
 		}
 	}
 }
