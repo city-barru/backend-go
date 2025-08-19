@@ -9,19 +9,12 @@ import (
 
 // SetupAuthRoutes sets up authentication routes
 func SetupAuthRoutes(router *gin.RouterGroup) {
-	authGroup := router.Group("/auth")
-	{
-		// Public routes
-		authGroup.POST("/register", auth.Register)
-		authGroup.POST("/login", auth.Login)
-		authGroup.GET("/roles", auth.GetRoles)
+	// Public routes
+	router.POST("/auth/register", auth.Register)
+	router.POST("/auth/login", auth.Login)
+	router.GET("/auth/roles", auth.GetRoles)
 
-		// Protected routes
-		protected := authGroup.Group("/")
-		protected.Use(middleware.AuthMiddleware())
-		{
-			protected.GET("/profile", auth.GetProfile)
-			protected.PUT("/profile", auth.UpdateProfile)
-		}
-	}
+	// Protected routes with middleware chaining
+	router.GET("/auth/profile", middleware.AuthMiddleware(), auth.GetProfile)
+	router.PUT("/auth/profile", middleware.AuthMiddleware(), auth.UpdateProfile)
 }

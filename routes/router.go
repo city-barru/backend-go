@@ -2,6 +2,7 @@ package routes
 
 import (
 	"backend-go/routes/auth"
+	"backend-go/routes/image"
 	"backend-go/routes/preference"
 	"backend-go/routes/trip"
 	"backend-go/routes/user"
@@ -25,5 +26,8 @@ func SetupRoutes(router *gin.Engine) {
 
 		// Preference routes (public & protected)
 		preference.SetupPreferenceRoutes(v1)
+
+		// Image routes (public & protected)
+		image.SetupImageRoutes(v1)
 	}
 }

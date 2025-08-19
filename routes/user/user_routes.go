@@ -9,13 +9,10 @@ import (
 
 // SetupUserRoutes sets up user-related routes
 func SetupUserRoutes(router *gin.RouterGroup) {
-	userGroup := router.Group("/users")
-	userGroup.Use(middleware.AuthMiddleware()) // Protect all user routes
-	{
-		userGroup.GET("/", middleware.RequireRole("admin"), user.GetAll) // Only admin can get all users
-		userGroup.GET("/:id", user.GetByID)
-		userGroup.POST("/", middleware.RequireRole("admin"), user.Create) // Only admin can create users
-		userGroup.PUT("/:id", user.Update)
-		userGroup.DELETE("/:id", middleware.RequireRole("admin"), user.Delete) // Only admin can delete users
-	}
+	// All user routes require authentication, some require admin role
+	router.GET("/users", middleware.AuthMiddleware(), middleware.RequireRole("admin"), user.GetAll) // Only admin can get all users
+	router.GET("/users/:id", middleware.AuthMiddleware(), user.GetByID)
+	router.POST("/users", middleware.AuthMiddleware(), middleware.RequireRole("admin"), user.Create) // Only admin can create users
+	router.PUT("/users/:id", middleware.AuthMiddleware(), user.Update)
+	router.DELETE("/users/:id", middleware.AuthMiddleware(), middleware.RequireRole("admin"), user.Delete) // Only admin can delete users
 }

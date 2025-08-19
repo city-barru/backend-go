@@ -9,25 +9,14 @@ import (
 
 // SetupTripRoutes sets up trip-related routes
 func SetupTripRoutes(router *gin.RouterGroup) {
-	tripGroup := router.Group("/trips")
-	{
-		// Public routes (anyone can view trips)
-		tripGroup.GET("/", middleware.OptionalAuth(), trip.GetAll)
-		tripGroup.GET("/:id", middleware.OptionalAuth(), trip.GetByID)
+	// Public routes (anyone can view trips)
+	router.GET("/trips", middleware.OptionalAuth(), trip.GetAll)
+	router.GET("/trips/:id", middleware.OptionalAuth(), trip.GetByID)
 
-		// Protected routes (authentication required)
-		protected := tripGroup.Group("/")
-		protected.Use(middleware.AuthMiddleware())
-		{
-			// Trip owner only routes - require trip_owner role
-			tripOwnerRoutes := protected.Group("/")
-			tripOwnerRoutes.Use(middleware.RequireRole("trip_owner"))
-			{
-				tripOwnerRoutes.POST("/", trip.Create)
-				tripOwnerRoutes.PUT("/:id", trip.Update)
-				tripOwnerRoutes.DELETE("/:id", trip.Delete)
-				tripOwnerRoutes.GET("/my-trips", trip.GetMyTrips)
-			}
-		}
-	}
+	// Protected routes with middleware chaining
+	// Trip owner only routes - require authentication + trip_owner role
+	router.POST("/trips", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.Create)
+	router.PUT("/trips/:id", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.Update)
+	router.DELETE("/trips/:id", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.Delete)
+	router.GET("/trips/my-trips", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.GetMyTrips)
 }
