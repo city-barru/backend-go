@@ -13,6 +13,7 @@ func AutoMigrate() error {
 		&Image{},
 		&Preference{},
 		&UserPreference{},
+		&TripPreference{},
 	)
 	if err != nil {
 		log.Printf("Failed to migrate database: %v", err)

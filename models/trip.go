@@ -19,5 +19,6 @@ type Trip struct {
 	UserID uint `json:"user_id" gorm:"not null"`
 	User   User `json:"user" gorm:"foreignKey:UserID"`
 
-	Images *[]Image `json:"images" gorm:"foreignKey:TripID"`
+	Images      *[]Image      `json:"images" gorm:"foreignKey:TripID"`
+	Preferences *[]Preference `json:"preferences" gorm:"many2many:trip_preferences;"`
 }

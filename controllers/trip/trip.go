@@ -3,6 +3,7 @@ package trip
 import (
 	"backend-go/config"
 	"backend-go/models"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,15 +11,16 @@ import (
 
 // CreateTripRequest represents the request structure for creating a trip
 type CreateTripRequest struct {
-	Name           string  `json:"name" binding:"required"`
-	Description    string  `json:"description"`
-	CoverImage     string  `json:"cover_image"`
-	Price          float64 `json:"price" binding:"required,min=0"`
-	Duration       int     `json:"duration" binding:"required,min=1"`
-	StartLatitude  float64 `json:"start_latitude" binding:"required"`
-	StartLongitude float64 `json:"start_longitude" binding:"required"`
-	EndLatitude    float64 `json:"end_latitude" binding:"required"`
-	EndLongitude   float64 `json:"end_longitude" binding:"required"`
+	Name           string                  `json:"name" binding:"required"`
+	Description    string                  `json:"description"`
+	CoverImage     string                  `json:"cover_image"`
+	Price          float64                 `json:"price" binding:"required,min=0"`
+	Duration       int                     `json:"duration" binding:"required,min=1"`
+	StartLatitude  float64                 `json:"start_latitude" binding:"required"`
+	StartLongitude float64                 `json:"start_longitude" binding:"required"`
+	EndLatitude    float64                 `json:"end_latitude" binding:"required"`
+	EndLongitude   float64                 `json:"end_longitude" binding:"required"`
+	Preferences    []models.TripPreference `json:"preferences"`
 }
 
 // UpdateTripRequest represents the request structure for updating a trip
@@ -37,7 +39,7 @@ type UpdateTripRequest struct {
 // GetAll retrieves all trips with optional filtering and pagination
 func GetAll(c *gin.Context) {
 	var trips []models.Trip
-	query := config.DB.Preload("User").Preload("Images")
+	query := config.DB.Preload("User").Preload("Images").Preload("Preferences")
 
 	// Optional filtering by user ID
 	if userID := c.Query("user_id"); userID != "" {
@@ -142,6 +144,30 @@ func Create(c *gin.Context) {
 
 	// Load the user data for the response
 	config.DB.Preload("User").First(&trip, trip.ID)
+
+	// Create trip-preferences link
+	preferences := req.Preferences
+	fmt.Println(preferences)
+	for _, preference := range preferences {
+		if err := config.DB.Model(&models.TripPreference{}).Where("trip_id = ? AND preference_id = ?", trip.ID, preference.ID).Error; err != nil {
+			c.JSON(http.StatusConflict, gin.H{
+				"error":   "Preference already assigned",
+				"message": "This preference is already assigned to the trip",
+			})
+			return
+		}
+
+		if err := config.DB.Create(&models.TripPreference{
+			TripID:       trip.ID,
+			PreferenceID: preference.ID,
+		}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "Failed to assign preference",
+				"message": "Could not save preference assignment to database",
+			})
+			return
+		}
+	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Trip created successfully",
