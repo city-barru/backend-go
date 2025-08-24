@@ -19,5 +19,14 @@ type Trip struct {
 	UserID uint `json:"user_id" gorm:"not null"`
 	User   User `json:"user" gorm:"foreignKey:UserID"`
 
-	Images *[]Image `json:"images" gorm:"foreignKey:TripID"`
+	Images      []Image      `json:"images,omitempty" gorm:"foreignKey:TripID"`
+	Preferences []Preference `json:"preferences,omitempty" gorm:"many2many:trip_preferences;"`
+	Points      []TripPoint  `json:"points,omitempty" gorm:"foreignKey:TripID"`
+}
+
+type TripPoint struct {
+	gorm.Model
+	TripID    uint    `json:"trip_id" gorm:"not null"`
+	Latitude  float64 `json:"latitude" gorm:"not null"`
+	Longitude float64 `json:"longitude" gorm:"not null"`
 }

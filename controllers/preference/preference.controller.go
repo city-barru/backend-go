@@ -155,7 +155,7 @@ func AssignPreference(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(preferences)
+	// fmt.Println(preferences)
 
 	for _, preference := range preferences {
 		if err := config.DB.Model(&models.UserPreference{}).Where("user_id = ? AND preference_id = ?", userId, preference.ID).Error; err != nil {

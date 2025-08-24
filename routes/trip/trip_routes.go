@@ -19,4 +19,7 @@ func SetupTripRoutes(router *gin.RouterGroup) {
 	router.PUT("/trips/:id", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.Update)
 	router.DELETE("/trips/:id", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.Delete)
 	router.GET("/trips/my-trips", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.GetMyTrips)
+
+	// ! Just for seeding, comment it out after using
+	router.POST("/trips/seed", middleware.AuthMiddleware(), middleware.RequireRole("trip_owner"), trip.SeedTrips)
 }
